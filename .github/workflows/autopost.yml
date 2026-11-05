@@ -1,44 +1,60 @@
 name: Wistful Forever AI autopost
+
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 10,15,21 * * *'
-      timezone: 'America/Toronto'
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-concurrency:
-  group: instagram-post
-  cancel-in-progress: false
+    - cron: "17 15 * * *"
+      timezone: "America/Toronto"
+
 jobs:
   post:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
     environment:
       name: github-pages
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
+
       - name: Install Python dependencies
         run: pip install -r requirements.txt
+
       - name: Generate quote and design
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          GEMINI_MODEL: gemini-2.5-flash
+          META_HANDLE: "@wistfulforever"
+          PEXELS_QUERIES: "candid girl portrait aesthetic|mirror selfie aesthetic|cozy bedroom aesthetic|couple candid aesthetic|soft lifestyle portrait|moody portrait indoors|warm aesthetic selfie|dreamy candid portrait|night city portrait aesthetic|romantic candid photo|soft girl aesthetic room|vintage style candid portrait"
         run: python generate.py
-      - name: Configure GitHub Pages
+
+      - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Upload Pages site
-        uses: actions/upload-pages-artifact@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: ./site
+
       - name: Deploy Pages site
         id: deployment
         uses: actions/deploy-pages@v4
+
       - name: Publish image to Instagram
         env:
+          PAGES_BASE_URL: https://rahimpc898-spec.github.io/instagram-ai-test
+          META_API_VERSION: v24.0
           INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
-          PAGES_BASE_URL: ${{ steps.deployment.outputs.page_url }}
         run: python publish.py

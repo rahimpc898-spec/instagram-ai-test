@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 OUT=Path('site'); OUT.mkdir(exist_ok=True)
 KEY=os.environ['GEMINI_API_KEY']
-model=os.getenv('GEMINI_MODEL','gemini-2.5-flash-lite')
+model=os.getenv('GEMINI_MODEL','gemini-3.5-flash-lite')
 now=datetime.now(timezone.utc)
 seed=now.strftime('%Y-%m-%d %H:%M UTC')
 prompt=f'''You write short original Instagram meme text for @wistfulforever.
